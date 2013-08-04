@@ -15,6 +15,21 @@
 
 @implementation CardMatchingGame
 
+@synthesize numberOfMatchingCards = _numberOfMatchingCards;
+
+- (int)numberOfMatchingCards
+{
+    if (!_numberOfMatchingCards) {
+        _numberOfMatchingCards = 2;
+    }
+    return _numberOfMatchingCards;
+}
+
+- (void)setNumberOfMatchingCards:(int)numberOfMatchingCards
+{
+    _numberOfMatchingCards = numberOfMatchingCards;
+}
+
 - (NSMutableArray *)cards
 {
     if (!_cards) _cards = [[NSMutableArray alloc] init];
@@ -52,20 +67,28 @@
 {
     Card *card = [self cardAtIndex:index];
     
-    if (!card.isUnplayable) {
+    if (!card.isUnplayable && !card.isFaceUp) {
         if (!card.isFaceUp) {
+            NSMutableArray *otherCards = [[NSMutableArray alloc] init];
             for (Card *otherCard in self.cards) {
                 if (otherCard.isFaceUp && !otherCard.isUnplayable) {
-                    int matchScore = [card match:@[otherCard]];
-                    if (matchScore) {
+                    [otherCards addObject:otherCard];
+                }
+            }
+            if ([otherCards count] == self.numberOfMatchingCards - 1) {
+                int matchScore = [card match:otherCards];
+                //matchScore = 0;
+                if (matchScore) {
+                    for (Card *otherCard in otherCards) {
                         otherCard.unplayable = YES;
-                        card.unplayable = YES;
-                        self.score += matchScore * MATCH_BOUNS;
-                    } else {
-                        otherCard.faceUp = NO;
-                        self.score -= MISMATCH_PENALNTY;
                     }
-                    break;
+                    card.unplayable = YES;
+                    self.score = matchScore * MATCH_BOUNS;
+                } else {
+                    for (Card *otherCard in otherCards) {
+                        otherCard.faceUp = NO;
+                    }
+                    self.score -= MISMATCH_PENALNTY;
                 }
             }
             self.score -= FLIP_COST;

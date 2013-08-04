@@ -11,6 +11,8 @@
 @interface PlayingCard : Card
 @property (strong, nonatomic) NSString *suit;
 @property (nonatomic) NSUInteger rank;
+- (int)match:(NSArray *)card1
+        with:(NSArray *)card2;
 
 + (NSArray *)validSuits;
 + (NSUInteger)maxRank;
